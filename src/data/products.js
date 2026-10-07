@@ -6,7 +6,6 @@ export const products = [
     price: 1480,
     rating: 4.9,
     reviews: 128,
-    badge: '人気 No.1',
     imageUrl: 'https://t-shoten.jp/cdn/shop/files/300g.jpg?v=1729583921',
   },
   {
@@ -16,7 +15,6 @@ export const products = [
     price: 3780,
     rating: 4.8,
     reviews: 94,
-    badge: 'お得パック',
     imageUrl: 'https://t-shoten.jp/cdn/shop/files/1_000g_c9a1075f-0470-4013-a036-a0eb267ed851.jpg?v=1729583724',
   },
   {
@@ -26,7 +24,6 @@ export const products = [
     price: 10980,
     rating: 5.0,
     reviews: 42,
-    badge: 'GIFT',
     imageUrl: 'https://t-shoten.jp/cdn/shop/files/800gx4_b8214120-db2d-46f8-be89-8bb95338e047.jpg?v=1729584079',
   },
 ];

@@ -6,9 +6,6 @@ export default function ProductCard({ product, onAddToCart }) {
     <div className="bg-white border border-tsukada-burgundy/10 shadow-sm hover:shadow-md transition-shadow group flex flex-col justify-between">
       <div>
         <div className="relative aspect-square overflow-hidden bg-gray-100">
-          <span className="absolute top-3 left-3 z-10 bg-tsukada-burgundy text-white text-[10px] px-2 py-1 tracking-wider font-sans">
-            {product.badge}
-          </span>
           <img
             src={product.imageUrl}
             alt={product.name}

@@ -20,7 +20,7 @@ export default function Hero() {
           <div className="pt-4">
             <a
               href="#products"
-              className="inline-flex items-center justify-center bg-tsukada-burgundy text-white px-8 py-4 text-sm tracking-widest hover:bg-tsukada-hoverBurgundy transition-colors shadow-sm"
+              className="inline-flex items-center justify-center bg-tsukada-burgundy text-black px-8 py-4 text-sm tracking-widest hover:bg-tsukada-hoverBurgundy transition-colors shadow-sm"
             >
               商品を見る <ChevronRight size={16} className="ml-2" />
             </a>
