@@ -35,7 +35,7 @@ const AboutPage = () => {
       {/* 3. Core Values / Features Section */}
       <section className="about-features" style={{ marginBottom: '60px' }}>
         <h2 style={{ textAlign: 'center', marginBottom: '40px', color: '#333' }}>
-          塚田商店のこだわり (츠카다 쇼텐의 고집)
+          塚田商店のこだわり (츠카다 상점의 고집)
         </h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
           
