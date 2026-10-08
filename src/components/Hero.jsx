@@ -29,7 +29,7 @@ export default function Hero() {
         <div className="relative flex justify-center">
           <div className="w-72 h-72 md:w-96 md:h-96 rounded-full overflow-hidden border-4 border-tsukada-burgundy/20 shadow-xl">
             <img
-              src="https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&q=80&w=600"
+              src="https://m.media-amazon.com/images/S/aplus-media-library-service-media/f77d2f9a-3109-4a62-bc6b-e8d0e0d0d005.__CR0,0,800,800_PT0_SX300_V1___.jpg"
               alt="塚田商店 干し芋"
               className="w-full h-full object-cover"
             />
