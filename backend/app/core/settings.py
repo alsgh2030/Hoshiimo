@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     database_url: str | None = None
     db_ssl: bool = False
     db_ssl_verify: bool = True
-    db_ssl_ca: str | None = None
+    db_ssl_ca: str | None = str(Path(__file__).with_name('aiven-ca.pem'))
     cors_origins: list[str] = ['http://localhost:5173', 'http://127.0.0.1:5173']
     cookie_secure: bool = False
     environment: str = 'development'
