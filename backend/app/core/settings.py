@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     db_name: str = 'hoshiimo'
     database_url: str | None = None
     db_ssl: bool = False
+    db_ssl_verify: bool = True
     db_ssl_ca: str | None = None
     cors_origins: list[str] = ['http://localhost:5173', 'http://127.0.0.1:5173']
     cookie_secure: bool = False
