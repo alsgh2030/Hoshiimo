@@ -20,7 +20,14 @@ class Base(DeclarativeBase):
 engine_options = {'isolation_level': 'READ COMMITTED', 'pool_size': 2,
                   'max_overflow': 0, 'pool_recycle': 300} if str(settings.db_url).startswith('mysql') else {}
 if settings.db_ssl:
-    engine_options['connect_args'] = {'ssl': ssl.create_default_context(cafile=settings.db_ssl_ca)}
+    ssl_context = ssl.create_default_context(cafile=settings.db_ssl_ca)
+    if not settings.db_ssl_verify:
+        # Some managed MySQL providers use a project-specific CA that is not
+        # available in the serverless runtime. TLS encryption remains enabled,
+        # while certificate verification can be disabled explicitly.
+        ssl_context.check_hostname = False
+        ssl_context.verify_mode = ssl.CERT_NONE
+    engine_options['connect_args'] = {'ssl': ssl_context}
 async_engine = create_async_engine(settings.db_url, pool_pre_ping=True, **engine_options)
 SessionLocal = async_sessionmaker(async_engine, expire_on_commit=False)
 
