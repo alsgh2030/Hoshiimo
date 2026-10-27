@@ -1,10 +1,18 @@
+import asyncio
 import ssl
+import sys
 
 from sqlalchemy import MetaData, event
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 
 from app.core.settings import settings
+
+
+if sys.platform == 'win32':
+    # asyncmy's TLS upgrade can fail on Windows' default Proactor loop with
+    # WinError 87. SelectorEventLoop is sufficient for this HTTP/MySQL app.
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 
 class Base(DeclarativeBase):
