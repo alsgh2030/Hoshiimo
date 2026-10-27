@@ -1,11 +1,8 @@
 import asyncio
 
 from alembic import context
-from sqlalchemy.ext.asyncio import create_async_engine
-from sqlalchemy.pool import NullPool
-
 from app.core.settings import settings
-from app.db.database import Base
+from app.db.database import Base, async_engine
 from app.db import models  # noqa: F401 — register every model for autogenerate
 
 target_metadata = Base.metadata
@@ -18,10 +15,9 @@ def configure(connection):
 
 
 async def online():
-    engine = create_async_engine(settings.db_url, poolclass=NullPool)
-    async with engine.connect() as connection:
+    async with async_engine.connect() as connection:
         await connection.run_sync(configure)
-    await engine.dispose()
+    await async_engine.dispose()
 
 
 if context.is_offline_mode():
