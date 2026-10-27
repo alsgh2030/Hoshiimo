@@ -1,5 +1,17 @@
 import { test, expect } from '@playwright/test';
 
+async function capturePage(page, path) {
+  // Full-page capture alone does not trigger lazy images outside the viewport.
+  for (const img of await page.locator('img').all()) {
+    await img.scrollIntoViewIfNeeded();
+    await expect.poll(() => img.evaluate(i => i.complete && i.naturalWidth > 0)).toBe(true);
+  }
+  await page.evaluate(() => document.fonts.ready);
+  await page.locator('main').focus();
+  await page.evaluate(() => scrollTo(0, 0));
+  await page.screenshot({ path, fullPage: true });
+}
+
 test('responsive storefront and original product photos', async ({ page }, testInfo) => {
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -7,11 +19,14 @@ test('responsive storefront and original product photos', async ({ page }, testI
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/');
     await expect(page.locator('.product-card')).toHaveCount(4);
+    await expect(page.locator('.product-photo')).toHaveCount(4);
     await page.locator('.product-card').last().scrollIntoViewIfNeeded();
     await expect.poll(() => page.locator('.product-photo').evaluateAll(images => images.every(i => i.complete && i.naturalWidth > 0))).toBe(true);
-    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    await page.evaluate(() => scrollTo(0, 0));
-    await page.screenshot({ path: testInfo.outputPath(`home-${width}.png`), fullPage: true });
+    await capturePage(page, testInfo.outputPath(`home-${width}.png`));
+    const overflow = await page.evaluate(() => [...document.querySelectorAll('body *')]
+      .filter(el => el.getBoundingClientRect().right > innerWidth + 1)
+      .map(el => `${el.tagName}.${el.className}`).slice(0, 12));
+    expect(await page.evaluate(() => document.documentElement.scrollWidth), `${width}px overflow: ${overflow.join(', ')}`).toBeLessThanOrEqual(width);
   }
   expect(errors).toEqual([]);
 });
@@ -36,7 +51,8 @@ test('header search, filters, sorting, empty state and URL history', async ({ pa
   await expect(page.getByText('該当する商品がありません')).toBeVisible();
   await page.getByRole('button', { name: '条件をクリアする' }).click();
   await expect(page.locator('.product-card')).toHaveCount(12);
-  await page.screenshot({ path: testInfo.outputPath('shop-mobile.png'), fullPage: true });
+  await expect(page.locator('.product-photo')).toHaveCount(12);
+  await capturePage(page, testInfo.outputPath('shop-mobile.png'));
 });
 
 test('signup, persisted cart, checkout and session restoration', async ({ page }, testInfo) => {
