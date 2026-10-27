@@ -13,4 +13,6 @@ body{background:#fafaf5}button,input,select{font:inherit}main{min-height:55vh}.s
   .site-header .brand{font-size:20px;gap:6px}
   .site-header .brand small{font-size:5px;letter-spacing:.65px}
   .site-header .brand-seal{width:30px;height:36px;font-size:21px}
+  .hero-copy h1{font-size:36px;letter-spacing:2px}
+  .story-band h2{font-size:24px;letter-spacing:2px}
 }

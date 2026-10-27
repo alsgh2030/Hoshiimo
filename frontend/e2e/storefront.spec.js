@@ -7,7 +7,7 @@ async function capturePage(page, path) {
     await expect.poll(() => img.evaluate(i => i.complete && i.naturalWidth > 0)).toBe(true);
   }
   await page.evaluate(() => document.fonts.ready);
-  await page.locator('main').focus();
+  await page.evaluate(() => document.activeElement?.blur());
   await page.evaluate(() => scrollTo(0, 0));
   await page.screenshot({ path, fullPage: true });
 }
