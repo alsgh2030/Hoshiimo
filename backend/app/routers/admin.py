@@ -52,7 +52,7 @@ async def edit_product(product_id: int, data: ProductUpdate, admin: AdminUser, d
     old = ProductRead.model_validate(before).model_dump()
     try:
         result = await db.execute(update(Product).where(Product.id == product_id, Product.version == data.expected_version)
-                                  .values(**data.model_dump(exclude={'expected_version'}), version=Product.version + 1)
+                                  .values(**data.model_dump(exclude={'expected_version'}, exclude_unset=True), version=Product.version + 1)
                                   .execution_options(synchronize_session=False))
         if result.rowcount != 1:
             raise HTTPException(409, '商品が更新されています。再読み込みしてください')

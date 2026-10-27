@@ -40,6 +40,8 @@ class Product(Base):
     name: Mapped[str] = mapped_column(String(120))
     description: Mapped[str] = mapped_column(Text)
     category: Mapped[str] = mapped_column(String(30), index=True)
+    image_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    source_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     weight_g: Mapped[int] = mapped_column(Integer)
     price_yen: Mapped[int] = mapped_column(Integer)
     stock: Mapped[int] = mapped_column(Integer, default=0)

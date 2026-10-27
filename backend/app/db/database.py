@@ -1,3 +1,5 @@
+import ssl
+
 from sqlalchemy import MetaData, event
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
@@ -15,7 +17,10 @@ class Base(DeclarativeBase):
     })
 
 
-engine_options = {'isolation_level': 'READ COMMITTED'} if str(settings.db_url).startswith('mysql') else {}
+engine_options = {'isolation_level': 'READ COMMITTED', 'pool_size': 2,
+                  'max_overflow': 0, 'pool_recycle': 300} if str(settings.db_url).startswith('mysql') else {}
+if settings.db_ssl:
+    engine_options['connect_args'] = {'ssl': ssl.create_default_context(cafile=settings.db_ssl_ca)}
 async_engine = create_async_engine(settings.db_url, pool_pre_ping=True, **engine_options)
 SessionLocal = async_sessionmaker(async_engine, expire_on_commit=False)
 
