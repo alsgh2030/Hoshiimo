@@ -9,7 +9,7 @@ React + FastAPI + MySQL로 만든 일본어 쇼핑몰 포트폴리오입니다. 
 | 영역 | 구현 내용 |
 |---|---|
 | 인증 | 회원가입, bcrypt 비밀번호 해싱, JWT access token, 회전형 refresh session |
-| 상품 | 목록·상세·검색·카테고리·페이지네이션 |
+| 상품 | 원본 사진 기반 12종, 이름·설명 검색, 카테고리, 가격순·신착순, 재고 필터, 페이지네이션 |
 | 장바구니 | 회원별 DB 저장, 수량·재고 검증 |
 | 모의 주문 | 서버 가격 계산, 상품 스냅샷, 재고 차감·주문 저장 transaction |
 | 중복·취소 | Idempotency-Key, 사용자별 접근 제한, 취소 시 재고 복구 |
@@ -27,7 +27,11 @@ Hoshiimo/
 └─ environment.yml
 ```
 
-초기 React 시제품의 `hero.png`는 `frontend/src/assets/original-hero.png`에 보존했습니다. 현재 상품 이미지는 실제 상품 사진을 복제하지 않고 SVG 패키지 일러스트를 사용합니다.
+초기 React 시제품의 `hero.png`는 `frontend/src/assets/original-hero.png`에 보존했습니다. 상품 사진 12장과 메인 사진 1장은 요청에 따라 공식 사이트의 원본 파일을 그대로 저장해 사용합니다. 출처와 체크섬은 [이미지 출처](docs/IMAGE_SOURCES.md)에 기록했습니다. 사진이 없는 기존 상품에는 일러스트가 표시됩니다.
+
+## Vercel 공개 테스트 배포
+
+[Vercel + MySQL 연결 가이드](docs/VERCEL_MYSQL.md)를 참고하세요. 저장소 **루트**를 Vercel 프로젝트로 연결하며, `vercel.json`의 Services(Beta)가 React와 FastAPI를 한 도메인에 배포합니다. 회원가입·장바구니·모의 주문은 연결된 MySQL에 저장됩니다. 배포 계정과 외부 접속 가능한 본인 DB 설정이 필요합니다.
 
 ## Windows + 미니콘다 + MySQL 실행
 

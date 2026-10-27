@@ -1,9 +1,18 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, X } from 'lucide-react';
 
 export const yen = value => new Intl.NumberFormat('ja-JP', { style: 'currency', currency: 'JPY' }).format(value);
 export const categories = { premium: '特選品', standard: '標準品', value: '訳あり品', offcuts: '切り落し' };
 export const statuses = { placed: '受付済み', packed: '梱包済み', shipped: '発送済み', cancelled: 'キャンセル' };
+
+export function ProductPhoto({ product, eager = false }) {
+  const [failed, setFailed] = useState(false);
+  useEffect(() => setFailed(false), [product.image_url]);
+  if (!product.image_url || failed) return <PackageArt category={product.category} />;
+  return <img className="product-photo" src={product.image_url} alt={product.name}
+    width="800" height="800" loading={eager ? 'eager' : 'lazy'} decoding="async"
+    onError={() => setFailed(true)} />;
+}
 
 export function Modal({ title, onClose, children, wide = false }) {
   const ref = useRef(null);

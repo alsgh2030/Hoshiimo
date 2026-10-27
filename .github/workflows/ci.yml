@@ -59,3 +59,28 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - run: npm run build
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r ../backend/requirements-dev.txt
+      - run: npx playwright install --with-deps chromium
+      - name: Prepare isolated browser-test database
+        working-directory: backend
+        env:
+          SECRET_KEY: ci-browser-tests-signing-key-never-use-in-production
+          DATABASE_URL: sqlite+aiosqlite:///./browser-test.db
+        run: |
+          alembic upgrade head
+          python -m app.seed
+      - name: Browser flows and responsive screenshots
+        env:
+          SECRET_KEY: ci-browser-tests-signing-key-never-use-in-production
+          DATABASE_URL: sqlite+aiosqlite:///./browser-test.db
+          AUTH_RATE_LIMIT: "10000"
+        run: npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: storefront-browser-results
+          path: frontend/test-results/
+          retention-days: 7

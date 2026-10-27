@@ -63,6 +63,8 @@ class ProductInput(Input):
     name: str = Field(min_length=1, max_length=120)
     description: str = Field(min_length=1, max_length=4000)
     category: Category
+    image_url: str | None = Field(default=None, max_length=500, pattern=r'^/images/[a-zA-Z0-9/_-]+\.(?:jpg|jpeg|png|webp)$')
+    source_url: str | None = Field(default=None, max_length=500, pattern=r'^https://t-shoten\.jp/products/[a-zA-Z0-9-]+$')
     weight_g: int = Field(gt=0, le=10000, strict=True)
     price_yen: int = Field(gt=0, le=1000000, strict=True)
     stock: int = Field(ge=0, le=1000000, strict=True)
@@ -86,6 +88,8 @@ class ProductRead(ORM):
     name: str
     description: str
     category: str
+    image_url: str | None = None
+    source_url: str | None = None
     weight_g: int
     price_yen: int
     stock: int
