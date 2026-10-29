@@ -8,7 +8,8 @@ import uvicorn
 from fastapi import FastAPI, Request, UploadFile, File, Depends
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
+import io
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
@@ -17,6 +18,7 @@ from app.db.database import async_engine
 from app.routers import admin, auth, cart, catalog, orders
 from app.db.models import Image
 from app.schemas import ImageModel
+from app.db.database import SessionLocal
 
 logger = logging.getLogger('hoshiimo')
 
@@ -32,6 +34,13 @@ app = FastAPI(title='Hoshiimo Portfolio API', version='0.1.0', lifespan=lifespan
 app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origins, allow_credentials=True,
                    allow_methods=['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
                    allow_headers=['Authorization', 'Content-Type', 'Idempotency-Key'])
+
+def get_db():
+    db=SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 # Single-process baseline. Put shared rate limiting at the ingress before multi-worker deployment.
 auth_attempts: OrderedDict[str, deque] = OrderedDict()
