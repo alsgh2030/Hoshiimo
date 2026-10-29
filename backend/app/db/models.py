@@ -1,8 +1,8 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import Boolean, CheckConstraint, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, CheckConstraint, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint, Column
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-
+from sqlalchemy.dialects.mysql import LONGBLOB
 from app.db.database import Base
 
 
@@ -103,3 +103,10 @@ class AuditLog(Base):
     target: Mapped[str] = mapped_column(String(100))
     detail: Mapped[str] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+class Image(Base):
+    __tablename__="images"
+
+    id=Column(Integer, primary_key=True)
+    filename=Column(String(255), nullable=False)
+    data=Column(LONGBLOB, nullable=False)

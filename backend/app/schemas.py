@@ -156,3 +156,10 @@ class AuditRead(ORM):
     target: str
     detail: str
     created_at: datetime
+
+class ImageModel(BaseModel):
+    id:int
+    filename:str
+
+    class Config:
+        orm_mode=True
