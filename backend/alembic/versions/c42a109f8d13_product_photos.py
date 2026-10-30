@@ -9,8 +9,10 @@ depends_on = None
 
 
 def upgrade():
-    op.add_column('products', sa.Column('image_url', sa.String(500), nullable=True))
-    op.add_column('products', sa.Column('source_url', sa.String(500), nullable=True))
+    columns = {column['name'] for column in sa.inspect(op.get_bind()).get_columns('products')}
+    for name in ('image_url', 'source_url'):
+        if name not in columns:
+            op.add_column('products', sa.Column(name, sa.String(500), nullable=True))
 
 
 def downgrade():
