@@ -1,6 +1,7 @@
 import json
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Form, File, UploadFile
+from pydantic import ValidationError
 from sqlalchemy import func, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload
@@ -9,6 +10,8 @@ from app.db.models import AuditLog, Order, Product, User
 from app.dependencies import AdminUser, DB
 from app.schemas import AuditRead, OrderPage, OrderRead, ProductInput, ProductPage, ProductRead, ProductUpdate, StatusInput
 from app.services.shop import transition_order
+from app.services.images import read_upload
+from app.schemas import Category
 
 router = APIRouter(prefix='/admin', tags=['Admin'])
 
@@ -30,12 +33,43 @@ async def products(admin: AdminUser, db: DB, page: int = Query(1, ge=1), page_si
                        total=await db.scalar(select(func.count()).select_from(Product)), page=page, page_size=page_size)
 
 
-@router.post('/products', response_model=ProductRead, status_code=201)
+@router.post('/products/json', response_model=ProductRead, status_code=201, summary='Create product without file (JSON)')
 async def create_product(data: ProductInput, admin: AdminUser, db: DB):
     product = Product(**data.model_dump())
     db.add(product)
     try:
         await db.flush()
+        db.add(AuditLog(actor_id=admin.id, action='product.create', target=str(product.id), detail=data.model_dump_json()))
+        await db.commit()
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(409, 'この商品コードは使用されています')
+    return product
+
+
+@router.post('/products', response_model=ProductRead, status_code=201, summary='Create product with image')
+async def create_product_with_image(
+    admin: AdminUser, db: DB,
+    slug: str = Form(...), name: str = Form(...), description: str = Form(...),
+    category: Category = Form(...), weight_g: int = Form(...),
+    price_yen: int = Form(...), stock: int = Form(0), is_active: bool = Form(True),
+    file: UploadFile | None = File(None, description='JPEG, PNG or WebP, maximum 3 MiB'),
+):
+    try:
+        data = ProductInput(slug=slug, name=name, description=description, category=category,
+                            weight_g=weight_g, price_yen=price_yen, stock=stock, is_active=is_active)
+    except ValidationError as exc:
+        raise HTTPException(422, detail=[{'loc': e['loc'], 'msg': e['msg'], 'type': e['type']} for e in exc.errors()])
+    image = await read_upload(file) if file else None
+    product = Product(**data.model_dump())
+    db.add(product)
+    try:
+        await db.flush()
+        if image:
+            image.product_id = product.id
+            db.add(image)
+            await db.flush()
+            product.image_url = image.url
         db.add(AuditLog(actor_id=admin.id, action='product.create', target=str(product.id), detail=data.model_dump_json()))
         await db.commit()
     except IntegrityError:

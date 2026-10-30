@@ -53,6 +53,7 @@ export function Admin({ user, onLogin }) {
 }
 
 function ProductEditor({ product, onClose, onSaved }) {
+  const [imageFile, setImageFile] = useState(null);
   const [form, setForm] = useState({ ...product });
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -63,7 +64,13 @@ function ProductEditor({ product, onClose, onSaved }) {
     const body = Object.fromEntries(Object.keys(blank).map(key => [key, form[key]]));
     for (const key of ['weight_g', 'price_yen', 'stock']) body[key] = Number(body[key]);
     if (product.id) body.expected_version = product.version;
-    try { await api(`/admin/products${product.id ? '/' + product.id : ''}`, { method: product.id ? 'PUT' : 'POST', body }); onSaved(); }
+    let payload = body;
+    if (!product.id) {
+      payload = new FormData();
+      for (const [key, value] of Object.entries(body)) payload.append(key, String(value));
+      if (imageFile) payload.append('file', imageFile);
+    }
+    try { await api(`/admin/products${product.id ? '/' + product.id : ''}`, { method: product.id ? 'PUT' : 'POST', body: payload }); onSaved(); }
     catch (e) { setError(e.message + (e.status === 409 ? ' この画面を閉じて一覧を更新し、最新の在庫を確認してください。' : '')); }
     finally { setBusy(false); }
   }
@@ -71,6 +78,7 @@ function ProductEditor({ product, onClose, onSaved }) {
     <label>商品名<input {...field('name')} required maxLength={120} /></label>
     <label>商品コード（英小文字・数字・ハイフン）<input {...field('slug')} required pattern="[a-z0-9]+(-[a-z0-9]+)*" maxLength={100} /></label>
     <label>説明<textarea {...field('description')} required maxLength={4000} rows={3} /></label>
+    {!product.id && <label>商品画像（JPEG / PNG / WebP、3 MiBまで）<input type="file" accept="image/jpeg,image/png,image/webp" onChange={e => setImageFile(e.target.files?.[0] ?? null)} /></label>}
     <label>カテゴリ<select {...field('category')}>{Object.entries(categories).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label>
     <div className="form-row"><label>内容量 (g)<input {...field('weight_g')} type="number" min={1} max={10000} step={1} required /></label><label>価格 (円)<input {...field('price_yen')} type="number" min={1} max={1000000} step={1} required /></label><label>在庫数<input {...field('stock')} type="number" min={0} max={1000000} step={1} required /></label></div>
     <label className="checkbox"><input type="checkbox" checked={form.is_active} onChange={e => setForm({ ...form, is_active: e.target.checked })} />商品を公開する</label>

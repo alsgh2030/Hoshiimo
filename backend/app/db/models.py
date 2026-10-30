@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import Boolean, CheckConstraint, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint, Column
+from sqlalchemy import Boolean, CheckConstraint, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint, Column, LargeBinary
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.mysql import LONGBLOB
 from app.db.database import Base
@@ -109,4 +109,10 @@ class Image(Base):
 
     id=Column(Integer, primary_key=True)
     filename=Column(String(255), nullable=False)
-    data=Column(LONGBLOB, nullable=False)
+    data: Mapped[bytes] = mapped_column(LargeBinary().with_variant(LONGBLOB(), 'mysql'), nullable=False, deferred=True)
+    product_id: Mapped[int | None] = mapped_column(ForeignKey('products.id', ondelete='SET NULL'), unique=True, nullable=True)
+    content_type: Mapped[str | None] = mapped_column(String(100), nullable=True)
+
+    @property
+    def url(self):
+        return f'/api/images/{self.id}/content'

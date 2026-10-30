@@ -23,11 +23,12 @@ export async function restoreSession() {
 
 export async function api(path, options = {}, retry = true) {
   const headers = { ...options.headers };
-  if (options.body !== undefined) headers['Content-Type'] = 'application/json';
+  const multipart = options.body instanceof FormData;
+  if (options.body !== undefined && !multipart) headers['Content-Type'] = 'application/json';
   if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
   const response = await fetch(`/api${path}`, {
     ...options, headers, credentials: 'include',
-    body: options.body === undefined ? undefined : JSON.stringify(options.body),
+    body: options.body === undefined ? undefined : multipart ? options.body : JSON.stringify(options.body),
   });
   if (response.status === 401 && retry && !path.startsWith('/auth/')) {
     if (await restoreSession()) return api(path, options, false);

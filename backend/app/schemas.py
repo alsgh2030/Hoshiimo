@@ -157,9 +157,10 @@ class AuditRead(ORM):
     detail: str
     created_at: datetime
 
-class ImageModel(BaseModel):
+class ImageModel(ORM):
     id:int
     filename:str
 
-    class Config:
-        orm_mode=True
+    product_id: int | None = None
+    content_type: str | None = None
+    url: str
